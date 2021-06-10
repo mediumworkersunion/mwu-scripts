@@ -1,2 +1,2 @@
-# mwu-bash
-Bash scripts that come in handy
+# mwu-scripts
+Terminal scripts that come in handy
