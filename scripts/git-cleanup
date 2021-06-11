@@ -1,0 +1,37 @@
+#!/bin/bash
+# find base dir so we can call helpers
+base_dir="$( cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
+
+#include all the common functions
+source "${base_dir}/helpers.sh"
+
+orig_branch="$(cur_branch)"
+main_branch="$(main_branch)"
+
+git checkout -q "$main_branch" || error "cannot check out ${main_branch}. Is your \$main_branch set correctly?"
+
+# find all branches with upstreams defined but no longer valid
+branches=$(git branch --format "%(refname:short) %(upstream:track)" | awk '{if ($2) print $1;}')
+
+# exit successfully if branches are in sync
+if [[ -z "$branches" ]] ; then
+  echo -e "${GREEN}No Branches to 🧹${PLAIN} All done!"
+  git checkout -q "$orig_branch"
+  exit
+fi
+
+warn "Found these branches with no upstream: "
+echo -e "${RED}$branches${PLAIN}"
+echo "Do you want to delete them? (Y/n) "
+read ans
+ans=$(tr '[:upper:]' '[:lower:]' <<< "$ans") #make lowercase
+if [[ ${ans} == 'y' || ${ans} == "yes" || $ans == "" ]]; then
+  for b in $branches ; do
+    git branch -D "$b"
+  done
+  echo -e "${GREEN}Old branches 🧹${PLAIN} All done!"
+else
+  echo -e "${YELLOW}exiting without making changes${PLAIN}"
+fi
+
+git checkout -q "$orig_branch"
