@@ -5,16 +5,16 @@ base_dir="$( cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
 #include all the common functions
 source "${base_dir}/helpers.sh"
 
+is_git_tree
 orig_branch="$(cur_branch)"
 main_branch="$(main_branch)"
+git diff-index --quiet HEAD || fatal "You have uncommitted changes. Commit or stash your changes before syncing"
 
-git diff-index --quiet HEAD || error "⛔️ You have uncommitted changes. Commit or stash your changes before syncing"
-
-git checkout -q "$main_branch" || error "⛔️ cannot check out ${main_branch}. Is your \$main_branch set correctly?"
+git checkout -q "$main_branch" || fatal "Cannot check out ${main_branch}. Is your \$main_branch set correctly?"
 old_head="$(git rev-parse HEAD)"
 
 echo -e "${GREEN}▶︎${PLAIN} Fetching remote updates..."
-git fetch --prune || error "⛔️ Could not fetch origin"
+git fetch --prune || fatal "Could not fetch origin"
 
 
 if [[ $(git rev-parse origin/HEAD) == $old_head ]]; then
@@ -22,10 +22,10 @@ if [[ $(git rev-parse origin/HEAD) == $old_head ]]; then
 else
   echo -e "${GREEN}▶︎${PLAIN} rebasing the following new commits onto ${main_branch}:"
   git log --oneline "${old_head}..origin/HEAD"
-  git rebase "origin/${main_branch}" || error "⛔️ Could not rebase $main_branch"
+  git rebase "origin/${main_branch}" || fatal "Could not rebase $main_branch"
 fi
 
 echo -e "${GREEN}▶︎${PLAIN} rebasing ${orig_branch}..."
-git checkout -q "${orig_branch}" || error "⛔️ Could not check out $orig_branch"
+git checkout -q "${orig_branch}" || fatal "Could not check out $orig_branch"
 git log --oneline "HEAD..origin/HEAD"
-git rebase "origin/${main_branch}" || error "⛔️ Could not rebase $orig_branch"
+git rebase "origin/${main_branch}" || fatal "Could not rebase $orig_branch"

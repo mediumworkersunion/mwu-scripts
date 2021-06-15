@@ -8,7 +8,7 @@ source "${base_dir}/helpers.sh"
 orig_branch="$(cur_branch)"
 main_branch="$(main_branch)"
 
-git checkout -q "$main_branch" || error "cannot check out ${main_branch}. Is your \$main_branch set correctly?"
+git checkout -q "$main_branch" || fatal "cannot check out ${main_branch}. Is your \$main_branch set correctly?"
 
 # find all branches with upstreams defined but no longer valid
 branches=$(git branch --format "%(refname:short) %(upstream:track)" | awk '{if ($2) print $1;}')
