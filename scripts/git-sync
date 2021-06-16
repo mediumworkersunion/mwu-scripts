@@ -14,18 +14,18 @@ git checkout -q "$main_branch" || fatal "Cannot check out ${main_branch}. Is you
 old_head="$(git rev-parse HEAD)"
 
 echo -e "${GREEN}▶︎${PLAIN} Fetching remote updates..."
-git fetch --prune || fatal "Could not fetch origin"
+git fetch --prune --quiet|| fatal "Could not fetch origin"
 
 
 if [[ $(git rev-parse origin/HEAD) == $old_head ]]; then
   echo -e "${YELLOW}▶︎${PLAIN} No updates to remote ${main_branch}"
 else
   echo -e "${GREEN}▶︎${PLAIN} rebasing the following new commits onto ${main_branch}:"
-  git log --oneline "${old_head}..origin/HEAD"
+  git --no-pager log --oneline "${old_head}..origin/HEAD"
   git rebase "origin/${main_branch}" || fatal "Could not rebase $main_branch"
 fi
 
 echo -e "${GREEN}▶︎${PLAIN} rebasing ${orig_branch}..."
 git checkout -q "${orig_branch}" || fatal "Could not check out $orig_branch"
-git log --oneline "HEAD..origin/HEAD"
+git --no-pager log --oneline "HEAD..origin/HEAD"
 git rebase "origin/${main_branch}" || fatal "Could not rebase $orig_branch"
