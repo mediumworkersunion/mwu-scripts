@@ -1,0 +1,19 @@
+#!/bin/bash -e
+# find base dir so we can call helpers
+base_dir="$( cd -- "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
+
+#include all the common functions
+source "${base_dir}/helpers.sh"
+
+[ -z ${1+x} ] && fatal "you must specify a branch name"
+is_git_tree
+
+main_branch="$(main_branch)"
+git branch -l "$1" | grep -q "$1" && fatal "Branch alredy exists"
+
+info "Syncing first..."
+git sync
+
+git checkout "${main_branch}"
+
+git checkout -b "$1"

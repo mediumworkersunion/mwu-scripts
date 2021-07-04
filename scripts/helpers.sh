@@ -14,6 +14,14 @@ function is_git_tree() {
   [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == "true" ]] || fatal "Must be run inside a git work tree"
 }
 
+function have_gh {
+  command -v gh >/dev/null || fatal "gh cli is required"
+}
+
+function get_gh_username() {
+  gh api user --cache 168h -q '.login'
+}
+
 function main_branch() {
   is_git_tree
   #attempt to get default branch from git config
@@ -41,4 +49,7 @@ function error() {
 }
 function warn() {
   echo -e "⚠️  ${@}" 2>&1
+}
+function info() {
+  echo -e "${GREEN}▶︎${PLAIN} ${@}" 
 }
