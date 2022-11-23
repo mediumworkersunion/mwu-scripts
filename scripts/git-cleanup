@@ -11,7 +11,7 @@ main_branch="$(main_branch)"
 git checkout -q "$main_branch" || fatal "cannot check out ${main_branch}. Is your \$main_branch set correctly?"
 
 # find all branches with upstreams defined but no longer valid
-branches=$(git branch --format "%(refname:short) %(upstream:track)" | awk '{if ($2) print $1;}')
+branches=$(git branch --format "%(refname:short) %(upstream:track)" | awk '{if ($2=="[gone]") print $1;}')
 
 # exit successfully if branches are in sync
 if [[ -z "$branches" ]] ; then
